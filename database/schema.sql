@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS items (
     storage_bin VARCHAR(50) NOT NULL,
     status VARCHAR(30) DEFAULT 'Surrendered',
     hidden_specifications TEXT NOT NULL,
+    image_path VARCHAR(255) NULL,
     date_found DATE NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    ALTER TABLE items ADD COLUMN image_path VARCHAR(255) NULL AFTER hidden_specifications;
 );
