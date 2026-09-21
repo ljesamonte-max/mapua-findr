@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-def get_db_connection():
+def get_connection():
     return mysql.connector.connect(
         host=os.getenv("DB_HOST", "localhost"),
         user=os.getenv("DB_USER", "root"),
@@ -14,7 +14,7 @@ def get_db_connection():
 
 if __name__ == "__main__":
     try:
-        conn = get_db_connection()
+        conn = get_connection()
         if conn.is_connected():
             print("Successfully connected to mapua_findr database!")
             conn.close()
