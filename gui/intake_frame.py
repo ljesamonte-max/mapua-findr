@@ -1,13 +1,32 @@
-import tkinter as tk
-from tkinter import ttk, messagebox
+import os
+import shutil
 from datetime import date
+import tkinter as tk
+from tkinter import ttk, messagebox, filedialog
+from PIL import Image, ImageTk
 from models.entities import insert_item
 
 class IntakeFrame(ttk.Frame):
     def __init__(self, parent):
         super().__init__(parent, padding="20")
         self.parent = parent
+        self.selected_image_path = None
+        self.preview_photo = None
         self._build_ui()
+
+    def select_photo(self):
+        file_types = [("Image files", "*.png;*.jpg;*.jpeg;*.webp")]
+        file_path = filedialog.askopenfilename(title="Select Item Photo", filetypes=file_types)
+        
+        if file_path:
+            self.selected_image_path = file_path
+            
+            # Load and resize thumbnail preview
+            img = Image.open(file_path)
+            img.thumbnail((80, 80))
+            self.preview_photo = ImageTk.PhotoImage(img)
+            
+            self.preview_label.config(image=self.preview_photo, text="")
 
     def _build_ui(self):
         # Header
@@ -72,9 +91,21 @@ class IntakeFrame(ttk.Frame):
         self.text_hidden = tk.Text(self, width=40, height=3, font=("Helvetica", 9))
         self.text_hidden.grid(row=9, column=1, sticky="ew", pady=4)
 
+        # Photo upload
+        ttk.Label(self, text="Item Photo:").grid(row=10, column=0, sticky="w", pady=6)
+
+        photo_frame = ttk.Frame(self)
+        photo_frame.grid(row=10, column=1, sticky="w", pady=6)
+
+        self.upload_btn = ttk.Button(photo_frame, text="Choose Image...", command=self.select_photo)
+        self.upload_btn.pack(side="left", padx=(0, 10))
+
+        self.preview_label = tk.Label(photo_frame, text="No image selected", bg="#e0e0e0", width=18, height=4)
+        self.preview_label.pack(side="left")
+
         # Submit Button
         submit_btn = ttk.Button(self, text="Submit Item", command=self._handle_submit)
-        submit_btn.grid(row=10, column=0, columnspan=2, pady=(15, 0))
+        submit_btn.grid(row=11, column=0, columnspan=2, pady=(15, 0))
 
     def _handle_submit(self):
         title = self.entry_title.get()
@@ -94,6 +125,20 @@ class IntakeFrame(ttk.Frame):
             return
 
         # Insert to MySQL
+        # Handle Photo Saving
+        image_db_path = None
+        if self.selected_image_path:
+            import time
+            upload_dir = os.path.join(os.getcwd(), "uploads")
+            os.makedirs(upload_dir, exist_ok=True)
+            
+            ext = os.path.splitext(self.selected_image_path)[1]
+            dest_filename = f"item_{int(time.time())}{ext}"
+            dest_path = os.path.join(upload_dir, dest_filename)
+            shutil.copy(self.selected_image_path, dest_path)
+            
+            image_db_path = os.path.join("uploads", dest_filename)
+
         success, message = insert_item(
             title=title,
             category=category,
@@ -103,7 +148,8 @@ class IntakeFrame(ttk.Frame):
             room=room,
             storage_bin=storage_bin,
             hidden_specifications=hidden_specs,
-            date_found=date_found
+            date_found=date_found,
+            image_path=image_db_path
         )
 
         if success:
@@ -121,3 +167,5 @@ class IntakeFrame(ttk.Frame):
         self.text_hidden.delete("1.0", tk.END)
         self.entry_date.delete(0, tk.END)
         self.entry_date.insert(0, str(date.today()))
+        self.selected_image_path = None
+        self.preview_label.config(image="", text="No image selected")

@@ -1,10 +1,6 @@
 from database.db_connection import get_connection
 
-def insert_item(title, category, public_description, campus, building, room, storage_bin, hidden_specifications, date_found):
-    """
-    Inserts a newly surrendered lost item into the items table.
-    Returns (True, message) on success or (False, error_message) on failure.
-    """
+def insert_item(title, category, public_description, campus, building, room, storage_bin, hidden_specifications, date_found, image_path=None):
     conn = get_connection()
     if not conn:
         return False, "Database connection failed. Check your .env configuration."
@@ -12,10 +8,11 @@ def insert_item(title, category, public_description, campus, building, room, sto
     query = """
         INSERT INTO items (
             title, category, public_description, campus,
-            building, room, storage_bin, hidden_specifications, date_found
+            building, room, storage_bin, hidden_specifications, date_found, image_path
         )
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """
+
     values = (
         title.strip(),
         category.strip(),
@@ -25,8 +22,10 @@ def insert_item(title, category, public_description, campus, building, room, sto
         room.strip() if room else None,
         storage_bin.strip(),
         hidden_specifications.strip(),
-        date_found.strip()
+        date_found.strip(),
+        image_path
     )
+    
 
     try:
         cursor = conn.cursor()
