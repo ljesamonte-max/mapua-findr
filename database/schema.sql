@@ -1,5 +1,7 @@
 CREATE DATABASE IF NOT EXISTS mapua_findr;
 USE mapua_findr;
+CREATE DATABASE IF NOT EXISTS mapua_findr;
+USE mapua_findr;
 
 CREATE TABLE IF NOT EXISTS items (
     item_id INT AUTO_INCREMENT PRIMARY KEY,
