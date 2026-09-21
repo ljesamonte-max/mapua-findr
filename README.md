@@ -14,5 +14,5 @@ A desktop application designed to streamline and secure lost-and-found reporting
 
 ### 1. Clone the Repository
 ```bash
-git clone <https://github.com/ljesamonte-max/mapua-findr.git>
+git clone https://github.com/ljesamonte-max/mapua-findr.git
 cd mapua-findr
