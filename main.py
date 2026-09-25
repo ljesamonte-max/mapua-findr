@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from gui.intake_frame import IntakeFrame
+from gui.feed_frame import FeedFrame
 
 
 class CodeOfConductView(ttk.Frame):
@@ -9,11 +10,9 @@ class CodeOfConductView(ttk.Frame):
         self.parent = parent
         self.on_agree_callback = on_agree_callback
 
-        # Window styling for acknowledgment
         self.parent.title("Mapúa Code of Conduct Confirmation")
         self.parent.geometry("500x260")
 
-        # Header
         header_lbl = ttk.Label(
             self,
             text="User Acknowledgment",
@@ -21,7 +20,6 @@ class CodeOfConductView(ttk.Frame):
         )
         header_lbl.pack(anchor="w", pady=(0, 10))
 
-        # Statement
         statement_text = (
             "Under the Mapúa Code of Conduct, I acknowledge that all submitted "
             "and retrieved records must be truthful and made in good faith. "
@@ -36,7 +34,6 @@ class CodeOfConductView(ttk.Frame):
         )
         statement_lbl.pack(anchor="w", pady=(0, 15))
 
-        # Checkbox
         self.agreement_var = tk.BooleanVar(value=False)
         self.check_btn = ttk.Checkbutton(
             self,
@@ -46,7 +43,6 @@ class CodeOfConductView(ttk.Frame):
         )
         self.check_btn.pack(anchor="w", pady=(0, 15))
 
-        # Proceed Button (disabled by default)
         self.continue_btn = ttk.Button(
             self,
             text="Proceed to Mapúa Findr",
@@ -66,19 +62,35 @@ class CodeOfConductView(ttk.Frame):
         self.on_agree_callback()
 
 
-def start_intake_system(root):
-    root.title("Mapúa Findr - Intake System")
-    root.geometry("520x640")
-    intake_frame = IntakeFrame(root)
-    intake_frame.pack(fill=tk.BOTH, expand=True)
+def start_main_system(root):
+    root.title("Mapúa Findr")
+    root.geometry("620x720")
+
+    notebook = ttk.Notebook(root)
+    notebook.pack(fill=tk.BOTH, expand=True)
+
+    # Tab 1: Feed Frame (Browse items)
+    feed_tab = FeedFrame(notebook)
+    notebook.add(feed_tab, text=" Browse Feed ")
+
+    # Tab 2: Intake Frame (Log items)
+    intake_tab = IntakeFrame(notebook)
+    notebook.add(intake_tab, text=" Report Item ")
+
+    # Refresh feed automatically whenever the user clicks the "Browse Feed" tab
+    def on_tab_selected(event):
+        selected_widget = root.nametowidget(notebook.select())
+        if selected_widget == feed_tab:
+            feed_tab.load_feed()
+
+    notebook.bind("<<NotebookTabChanged>>", on_tab_selected)
 
 
 def main():
     root = tk.Tk()
     root.resizable(False, False)
 
-    # Show acknowledgment view first; transitions to intake frame on agree
-    coc_view = CodeOfConductView(root, lambda: start_intake_system(root))
+    coc_view = CodeOfConductView(root, lambda: start_main_system(root))
     coc_view.pack(fill=tk.BOTH, expand=True)
 
     root.mainloop()
